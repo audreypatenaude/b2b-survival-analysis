@@ -1,18 +1,18 @@
 import streamlit as st
-import json
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 
 
-SAMPLE_FILE = 'deals_data.json'
+
+SAMPLE_FILE = 'deals_data.csv'
 
 st.markdown("# B2B Pipeline Analysis")
 st.sidebar.markdown("# Analyzing deal data")
 
 @st.cache
-def load_data(file_name):
-    with open(file_name, 'r') as f:
-        data = json.load(f)
-    return data
+def load_deals_data(file_name):
+    return pd.read_csv(file_name)
 
 st.write(
     """While we explain some (mildly) fancy methods in our blog posts, we have often found confusing 
@@ -87,35 +87,57 @@ st.write(
 
 st.subheader("'When will then be now?' - or, a glimpse into a thousand futures")
 
-sample_data = load_data(SAMPLE_FILE)
+# load and cache the sample deal data
+sample_deal_data = load_deals_data(SAMPLE_FILE)
 
 st.write(
     """
     Now that the problem is well-understood with a toy dataset, it is time to scale up our intuition
     with more data and a more realistic use case.
 
-    We create some simulated deals data for `ACME Inc.`, a B2B company selling {} products, say, a SaaS solution
+    We created some simulated deals data for `ACME Inc.`, a B2B company selling {} products, say, a SaaS solution
     for different verticals: HR, healthcare, finance etc. (no worries: you can use _also your own data_ 
     at the end!).
-
-    You can use the tab below to visualize how the distribution of ACV changes across products:
-    """.format(3)
+    """.format(len(list(sample_deal_data['product'].unique())))
 )
 
-option = st.selectbox(
-     'Which product deals you want to see?',
-     list(sample_data.keys())
-     )
+if st.checkbox('Show raw data format'):
+    st.write(sample_deal_data[:10])
 
-st.write('Deals for {}'.format(option))
-st.bar_chart(np.histogram(sample_data[option], bins=50)[0])
+st.write(
+    """
+    You can use the tab below to visualize how the distribution of ACV changes across products:
+    """
+)
+
+def build_product_select(df: pd.DataFrame):
+    unique_products = list(df['product'].unique())
+    s = st.multiselect(
+     'Select the products you want to display:',
+     unique_products,
+     unique_products)
+
+    return s
+
+def build_product_plot(df: pd.DataFrame, options: list):
+    for o in options:
+        cnt_dists = df.loc[df['product'] == o].groupby('product')['deal_size'].apply(list)[0]
+        plt.hist(cnt_dists, 50, alpha=0.2, density=True, label=o)
+
+    plt.legend()
+
+    return plt
+
+# display products based on selection
+product_options = build_product_select(sample_deal_data)
+_fig = build_product_plot(sample_deal_data, product_options)
+st.pyplot(_fig)
 
 st.write(
     """
     An interesting question for people like bob and alice
     """
 )
-
 
 def simulate_future_revenues(
     dist, # historical distribution
@@ -143,20 +165,24 @@ def simulate_future_revenues(
 
 st.header("Use your own data!")
 
+st.write("""
+        Upload a csv file with two columns (product,deal_size), where the first column is a string ID
+        (product_0), and the second is a number representing deal size (see also the sample data above
+        as an example).
+
+        Once data is uploaded, you will see a button to run the same analysis on your data 
+        (NOTE: _no data is stored on our side!_)!
+    """
+)
 uploaded_file = st.file_uploader("Choose a file")
 if uploaded_file is not None:
-     # To read file as bytes:
-     bytes_data = uploaded_file.getvalue()
-     st.write(bytes_data)
-
-     # To convert to a string based IO:
-     stringio = StringIO(uploaded_file.getvalue().decode("utf-8"))
-     st.write(stringio)
-
-     # To read file as string:
-     string_data = stringio.read()
-     st.write(string_data)
-
-     # Can be used wherever a "file-like" object is accepted:
-     dataframe = pd.read_csv(uploaded_file)
-     st.write(dataframe)
+     # check if this is a csv -> should be more robust ;-)
+    if not uploaded_file.name.endswith('.csv'):
+        st.write("Please upload a csv file")
+    else:
+        user_dataframe = pd.read_csv(uploaded_file)
+        k = 3
+        st.write("Data uploaded: first {} lines are:".format(k))
+        st.write( user_dataframe[:k])
+        if st.button('Compute my future!'):
+            pass
