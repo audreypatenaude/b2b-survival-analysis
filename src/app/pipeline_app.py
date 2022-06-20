@@ -20,22 +20,29 @@ def load_deals_data(file_name):
 
 
 st.write(
-    """While we explain some (mildly) fancy methods in our blog posts, we have often found confusing 
-    remarks even in some very basic reasoning around marketing, business development, pipeline analysis, etc.
+    """Note: this is the web app accompanying our blog post series on survival analysis for B2B pipelines (_fortcoming_).
+    We suggest that you read the posts and play with the app in tandem.""")
+    
+st.header("Part 1: Distribution and Common Errors")
+
+st.write(
+    """While we explain some (mildly) fancy methods in the series, we have often found confusing 
+    practices even in some very basic reasoning around marketing and pipeline analysis. So we decided to kick things off with 
+    some basic but important principles that may help you avoid common forecasting mistakes.
     """)
 
 st.write("""
-    At the cost of being obvious, our (interactive) app goes over the perils of skewed distributions and
+    At the cost of being obvious, our interactive app goes over the perils of skewed distributions and
     what we should know when making simple considerations about future goals. 
     """)
 
-st.header("Distributions and why they matters")
+st.header("Distributions and why they matter")
 
 st.write(
     """
     Consider the deal history of (the imaginary) `Company A` and `Company B` below
-    (each won deal value is in thousands of USD). `Company A` and `Company B` makes the same
-    revenues at the end of the year, their [average](https://en.wikipedia.org/wiki/Mean) ACV (Annual Contract Value) is the same, 
+    (each won deal value is in thousands of USD). `Company A` and `Company B` make the same
+    revenue at the end of the year, their [average](https://en.wikipedia.org/wiki/Mean) ACV (Annual Contract Value) is the same, 
     but the [median](https://en.wikipedia.org/wiki/Median) is very different.
 
     You can play around with the numbers yourself to build up your intuition.
@@ -57,7 +64,7 @@ st.write('`Company A` total revenues is {} k USD, avg. ACV is {} K USD, median i
 st.write(
     """
     Should Alice - head of marketing at `Company A`, and Bob - head of marketing at `Company B` -
-    both reason with avg. ACV to make forecasting and strategy? As a first experiment, we remove the biggest deal from past history and recompute the avg. ACV and
+    both reason with their avg. ACV to make forecasting and strategy? As a first experiment, we remove the biggest deal from past history and recompute the avg. ACV and
     the median:
     """
 )
@@ -74,7 +81,7 @@ st.write('`Company A` avg. ACV is now {} K USD, median is {}; `Company B` avg. A
 
 st.write(
     """
-    `Company A` values are mostly the same, while `Company B` outlook is completely different. 
+    `Company A`'s deal values are mostly the same, while `Company B`'s outlook is completely different. 
     The lesson for Bob is clear: when there are few very large deals influencing revenues, the avg. ACV
     alone may be an unreliable indicator of the state of the business:
 
@@ -85,7 +92,7 @@ st.write(
 
 st.write(
     """
-    As a less toy example, consider the above points in the context of the deal size distribution below 
+    As a less simplistic example, consider the above points in the context of the deal size distribution below 
     (blue, median, ~50k, purple, mean, ~100k): the median clearly captures the low-end of the deal spectrum 
     (leaving open the question on how to treat outliers on the right), while the mean is capturing neither the low-end
     or the high-end, and ends up representing a small minority of deals. 
@@ -147,6 +154,10 @@ def build_product_plot(df: pd.DataFrame, options: list, id: int):
 product_options = build_product_select(sample_deal_data, key='default_options')
 _fig = build_product_plot(sample_deal_data, product_options, id=0)
 st.pyplot(_fig)
+st.caption("""
+    Historical distribution of deal size by selected product.
+    X: Deal ACV, Y: Normalized counts.
+""")
 
 
 def simulate_futures(
@@ -175,8 +186,8 @@ n_futures = 10000
 st.write(
     """
     An interesting question for practictioners like Bob and Alice is setting (and then reaching) a pipeline goal
-    for the next time period (say, a quarter, a month etc.): assuming for now we know our conversion rate (more on that in
-    the `Survival Analysis` tab), we can estimate closing 20 new deals in our next period - our expected generated revenues
+    for the next time period (say, a quarter, a month etc.): assuming for now we know our opportunity conversion rates (more on that in
+    the `Survival Analysis` tab), we can estimate closing 20 new deals in our next period - our expected generated revenue
     is therefore avg. ACV * 20.
 
     If you followed so far, you have reasons to be skeptical of this "point-wise" estimate: certainly the future is a bit more
@@ -184,15 +195,15 @@ st.write(
     drive our point home through _simulations_. 
     
     Imagine - like [Doctor Strange](https://en.wikipedia.org/wiki/Doctor_Strange_(2016_film)), if you will - to be able to see
-    all of the different possible ways the future quarter may unfold: in one future, things go horribly wrong and you sell mostly
-    small deals; in another a personal connection with a C-level speeds up an enterprise negotation - and so on. To get a sense of 
-    what is a realistic estimate of your next quarter's revenues, you can plot the total revenues you get in each of this futures (well, 
+    all of the different possible ways the future quarter may unfold: in one future, things go in a very conservative way and you sell mostly
+    small deals; in another version of the future, a personal connection with a C-level speeds up an enterprise negotation - and so on. To get a sense of 
+    what is a realistic estimate of your next quarter's revenues, you can plot the total revenues you get in each of these potential futures (well, 
     you can't really plot _all_ of them, so we simulate {}).
 
     The key point about these future scenarios is that you don't know which one will be the _actual one_: when setting goals and making
-    forecast, it is important to fully understand how spread possible outcomes can be: when playing around with different products, we 
+    forecasts, it is important to fully understand how spread out the possible outcomes can be: when playing around with different products, we 
     will also compute exceedingly bad and good scenarios to give you a sense of the distribution (NOTE: 
-    in our career, we have seen real-world deal distributions significantly more skewed than the synthentic one - in those cases, explicitely
+    in our careers, we have seen real-world deal distributions significantly more skewed than this synthentic one - in those cases, explicitely
     addressing this issue is even more important!). 
     """.format(n_futures)
 )
@@ -207,6 +218,10 @@ _future_fig = simulate_futures(
     n_futures=n_futures
 )
 st.pyplot(_future_fig)
+st.caption("""
+    Potential future revenues for selected products by probability density.
+    X: Total Revenues, Y: Probability of outcome
+""")
 
 
 st.header("Use your own data!")
