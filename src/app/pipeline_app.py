@@ -3,9 +3,11 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from PIL import Image
+from pathlib import Path
 
-
-SAMPLE_FILE = 'deals_data.csv'
+# needed for streamlit cloud
+script_path = Path(__file__).parents[0] 
+SAMPLE_FILE = script_path / 'deals_data.csv'
 
 
 st.markdown("# B2B Pipeline Analysis")
@@ -90,12 +92,9 @@ st.write(
     """
     )
 
-from os.path import exists
 
-file_exists = exists('example.jpg')
-if file_exists:
-    image = Image.open('example.jpg')
-    st.image(image, caption='Mean and median for another deal size distribution', width=300)
+image = Image.open(script_path / 'example.jpg')
+st.image(image, caption='Mean and median for another deal size distribution', width=300)
 
 st.subheader("'[When will then be now](https://www.youtube.com/watch?v=5drjr9PmTMA)?' - or, a glimpse into a thousand futures")
 
