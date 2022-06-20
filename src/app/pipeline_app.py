@@ -90,9 +90,12 @@ st.write(
     """
     )
 
+from os.path import exists
 
-image = Image.open('example.jpg')
-st.image(image, caption='Mean and median for another deal size distribution', width=300)
+file_exists = exists('example.jpg')
+if file_exists:
+    image = Image.open('example.jpg')
+    st.image(image, caption='Mean and median for another deal size distribution', width=300)
 
 st.subheader("'[When will then be now](https://www.youtube.com/watch?v=5drjr9PmTMA)?' - or, a glimpse into a thousand futures")
 
