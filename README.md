@@ -4,12 +4,16 @@ Code and data playground to better analyze pipeline data for "small-data" B2B sa
 
 ## Overview
 
-TBC
+This repository contains the code to reproduce the analysis and the arguments of the B2B sales 
+pipeline series (forthcoming). If you are just interested in the interactive app and not so much
+in the code behind it, you can enjoy directly the app [here](https://share.streamlit.io/audreypatenaude/b2b-survival-analysis/src/app/pipeline_app.py).
 
-Folders:
+_Please note this repo is WIP. Come back often for updates_.
 
-* `app`: [streamlit](https://streamlit.io/)
-* `notebooks`
+Project structure:
+
+* `app`: code for the [streamlit](https://streamlit.io/) interactive app, available online [here](https://share.streamlit.io/audreypatenaude/b2b-survival-analysis/src/app/pipeline_app.py)
+* `notebooks`: throw-away code used when developing and debugging the app.
 
 ## Setup
 
