@@ -52,7 +52,7 @@ st.write(
 company_A = st.text_input('Deals for Company A (thousands of USD)', '60,40,55,45,50')
 company_B = st.text_input('Deals for Company B (thousands of USD)', '10,20,30,150,40')
 
-st.write('`Company A` total revenues is {} k USD, avg. ACV is {} K USD, median is {}; `Company B` total revenues is {} k USD, avg. ACV is {} K USD, median is {}'.format(
+st.write('`Company A` total revenues is {} k USD, avg. ACV is {} k USD, median is {} k USD; `Company B` total revenues is {} k USD, avg. ACV is {} k USD, median is {} k USD'.format(
     sum([float(_) for _ in company_A.split(',')]), 
     np.mean([float(_) for _ in company_A.split(',')]),
     np.median([float(_) for _ in company_A.split(',')]),
