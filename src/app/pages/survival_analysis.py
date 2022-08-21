@@ -22,12 +22,12 @@ st.write(
 st.header("Part 1: The Problem with Conversion Analysis")
 
 st.write("""
-    When considering desired outcomes in some relatively distant future - for example, closing deals in B2B -,
-    a common trick is establishing a threshold of interest, say, 3 months, and then calculate / predict the closing rate at 3 months after the SQL was created.
+    When considering desired outcomes in some relatively distant future - for example, closing deals in a B2B software company -,
+    a common trick is establishing a threshold of interest, say, 3 months, and then calculate the average closing rate at 3 months after the opportunity was created.
 
     By turning the conversion problem into a binary classification with a fixed time horizon, however, we are now:
     
-    * incapable of making considerations for deal that are younger than the threshold. Should I wait two quarters to know how THIS quarter is going?
+    * incapable of making considerations for deals that are younger than the threshold. Should I wait two quarters to know how THIS quarter is going?
     * incapable of adapting our closing estimates as deals age: what does deal age tell us about closing probability?
     
     To overcome this limitation, we will use a different approach here, borrowed by what is called survival analysis (SA). In SA, the typical questions we want to answer are:
