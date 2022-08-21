@@ -77,7 +77,7 @@ def plot_winning_rate(
         x = range(0, len(y))
         ax.plot(x, y, label='Prod {}'.format(product))
         ax.set_xlabel('Weeks from SQL opening date')
-        ax.set_ylabel('Probability of closing')
+        ax.set_ylabel('Probability of winning')
         ax.fill_between(x, y_min, y_max, alpha=.1)
     # plot the legend
     plt.legend()
@@ -88,7 +88,7 @@ _fig = plot_winning_rate(sample_survival_data)
 st.pyplot(_fig)
 st.caption("""
     Closing rate by product line as time goes by (with confidence intervals)
-    X: Winning probability, Y: Weeks from SQL date.
+    Y: Winning probability, X: Weeks from SQL date.
 """)
 
 st.write("""
@@ -118,6 +118,48 @@ given Kaplan-Meier (unconditional) estimates is just the ratio `KM (k + t) / KM 
 """)
 
 
+k_weeks = st.text_input('Future look-ahead (weeks, integer)', '12')
+
+def plot_conditional_winning_rate(
+    df,
+    k: int
+):
+    # setup the plot
+    f = plt.figure(figsize=(16,9))
+    ax = f.add_subplot(111)
+    products = list(df['ProductId'].unique())
+    print("Products detected: {}".format(products))
+    # for each product plot the line
+    for product in products:
+        cnt_df = df.loc[df['ProductId'] == product]
+        T, E = datetimes_to_durations(cnt_df["SQLDate"], cnt_df["WonDate"], freq='W')
+        kmf = KaplanMeierFitter().fit(T, E, label='Prod {}'.format(product))
+        all_vals = [1 - _[0] for _ in kmf.survival_function_.values]
+        max_weeks = len(all_vals)
+        y = [all_vals[min(idx + k_weeks, max_weeks - 1)] / all_vals[idx] for idx in range(max_weeks)]
+        x = range(0, len(y))
+        ax.plot(x, y, label='Prod {}'.format(product))
+        ax.set_xlabel('Weeks from SQL opening date')
+        ax.set_ylabel('Probability of winning')
+    # plot the legend
+    plt.legend()
+
+    return plt
+
+# calculate and plot the lines
+c_fig = plot_winning_rate(sample_survival_data, int(k_weeks))
+st.pyplot(c_fig)
+st.caption("""
+    Conditional winning rate (k={}) by product line.
+    Y: Conditional winning probability, X: Weeks from SQL date.
+""".format(k_weeks))
+
+st.write("""
+Not bad!
+
+""")
+
+
 st.header("Use your own data!")
 
 st.write("""
@@ -142,5 +184,5 @@ if uploaded_file is not None:
         st.pyplot(user_fig)
         st.caption("""
             Analysis on your data, by product line (with confidence intervals).
-            X: Winning probability, Y: Weeks from SQL date.
+            Y: Winning probability, X: Weeks from SQL date.
         """)
