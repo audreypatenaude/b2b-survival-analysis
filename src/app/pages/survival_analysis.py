@@ -122,7 +122,7 @@ k_weeks = st.text_input('Future look-ahead (weeks, integer)', '12')
 
 def plot_conditional_winning_rate(
     df,
-    k: int
+    k_weeks: int
 ):
     # setup the plot
     f = plt.figure(figsize=(16,9))
