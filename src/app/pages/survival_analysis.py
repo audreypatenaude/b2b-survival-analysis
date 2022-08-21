@@ -22,7 +22,7 @@ st.write(
 st.header("Part 1: The Problem with Conversion Analysis")
 
 st.write("""
-    When considering desired outcomes in some relatively distant future - for example, closing deals in a B2B software company -,
+    When considering desired outcomes in some relatively distant future - for example, closing deals in a B2B software company,
     a common trick is establishing a threshold of interest, say, 3 months, and then calculate the average closing rate at 3 months after the opportunity was created.
 
     By turning the conversion problem into a binary classification with a fixed time horizon, however, we are now:
@@ -32,11 +32,11 @@ st.write("""
     
     To overcome this limitation, we will use a different approach here, borrowed by what is called survival analysis (SA). In SA, the typical questions we want to answer are:
 
-    * are people that took treament A vs B dying faster? (We certainly would like to know as fast as possible the answer to this!)
-    * given somebody survived 5 years after getting diagnosed X, how likely is he/she to be alive in the next 3? (We certainly would like to incorporate the knowledge we have at years 5 into our current estimate)
+    * are people that took treament A dying faster than those who took treatment B? (We certainly would like to know as fast as possible the answer to this!)
+    * given that somebody survived 5 years after getting diagnosed X, how likely are they to be alive in the next 3 years? (We certainly would like to incorporate the knowledge we have at years 5 into our current estimate)
 
-    SA, like deal closing, has to deal with an event in the future that may occur at any point in time: at any given moment, we only know what happened to deals / patients with one outcome, 
-    but have no idea about the others (NOTE: the similarity breaks down as everybody dies eventually, but not every deal closes, but the general idea will serve as a 
+    SA, like deal closing, has to deal with an event in the future that may occur at any point in time. But at any given moment, we only know what happened to deals (or patients) that have had an outcome already, 
+    but have no idea what's going to happen to the others (NOTE: the similarity breaks down as everybody dies eventually, but not every deal closes, but the general idea will serve as a 
     good metaphor to the introductory treatment we propose here).
 """)
 
@@ -94,13 +94,13 @@ st.caption("""
 st.write("""
     The plot above give us immediately two benefits compared to a traditional, binary conversion analysis:
 
-    * first, by plotting by cohorts (that is, considering for each deal week 0 the SQL opening date), we can immediately compare product lines even in the early days: for example, even if `Prod 1` was a new line with only 10 weeks of data, we would still be able to make some partial judgment and comparison with `Prod 2` (in particular, `Prod 2` seems to be much better in the early weeks!);
-    * second, by using a [statistical estimator from the lifelines package](https://lifelines.readthedocs.io/en/latest/fitters/univariate/KaplanMeierFitter.html) we also get confidence interval around our closing rate. 
+    * first, by plotting by cohorts (that is, considering for each deal week 0 the opportunity creation date), we can immediately compare product lines even in the early days: for example, even if `Prod 1` was a new line with only 10 weeks of data, we would still be able to make some partial judgment and comparison with `Prod 2` (in particular, `Prod 2` seems to be much better in the early weeks!);
+    * second, by using a [statistical estimator from the lifelines package](https://lifelines.readthedocs.io/en/latest/fitters/univariate/KaplanMeierFitter.html) we also get confidence intervals around our closing rate. 
 """)
 
 st.write("""
     Now that we have a better answer to our first challenge above, we turn our attention to the second open question:
-    certainly, if a deal is 20 weeks long, its probability of closing may be different than if it is only 10 weeks long.
+    certainly, if a deal is 20 weeks old, its probability of closing may be different than if it is only 10 weeks old.
 
     How can we incorporate this insight into our calculations? Enter the conditional version of the Kaplan-Meier estimator!
 
@@ -158,11 +158,11 @@ st.caption("""
 st.write("""
 Not bad! If you run the above with the default `8` as look-ahead window, you see that, given a `10 weeks` opportunity (X-axis), the probability of closing in the next `8` is different for the two products. 
 
-Of course, once you get the intuition, try experiment with different values!
+Of course, once you get the intuition, try experiment with different values! Keep in mind that we are using the values Product and Age for this example, but "Product" could be replaced by any other variable that distinguishes the different types of deals you have in your pipeline (i.e. other texture attributes which could be account type, deal size, etc).
 
 While this is certainly looking like progress, and a (somehow) principled way to look at the challenge, this is _only the beginning_ of a proper analysis: 
 
-* first, no feature of our opportunities is used to provide insights (except partionining by products and age); if we want to also consider, say, sales reps, we need to move to a [full regression model](https://lifelines.readthedocs.io/en/latest/Survival%20Regression.html);
+* first, no other specific feature of our opportunities is used to provide insights (except partionining by products and age); if we want to also consider, say, sales reps or industry, we need to move to a [full regression model](https://lifelines.readthedocs.io/en/latest/Survival%20Regression.html);
 * second, we have been cheating (a bit) by setting our prediction as a binary problem (win in business=death in survival): in B2B SaaS, outcome is more commonly conceptualized as non-binary, `win`, `loss`, `still open`; also consider that while eventually everybody dies, not everybody buys;
 * third, we have only scratched the surface when using non-parametric estimates for mostly descriptive purposes, but there is a world out of [parametric models](https://lifelines.readthedocs.io/en/latest/Survival%20analysis%20with%20lifelines.html#fitting-to-a-weibull-model) for more advanced use cases.
 
