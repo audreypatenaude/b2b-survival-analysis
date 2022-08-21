@@ -58,10 +58,9 @@ st.write("""
 if st.checkbox('Show raw data format'):
     st.write(sample_survival_data[:5])
 
-def plot_closing_rate(
+def plot_winning_rate(
     df 
 ):
-    all_funcs = {}
     # setup the plot
     f = plt.figure(figsize=(16,9))
     ax = f.add_subplot(111)
@@ -85,11 +84,11 @@ def plot_closing_rate(
 
     return plt
 
-_fig = plot_closing_rate(sample_survival_data)
+_fig = plot_winning_rate(sample_survival_data)
 st.pyplot(_fig)
 st.caption("""
     Closing rate by product line as time goes by (with confidence intervals)
-    X: Closing probability, Y: Weeks from SQL date.
+    X: Winning probability, Y: Weeks from SQL date.
 """)
 
 st.write("""
@@ -109,4 +108,39 @@ st.write("""
 
 st.header("Part 2: Conditional Probabilities")
 
-st.write("This is a WIP - come back soon for updates!")
+st.write("""
+It turns out, we already have most of what we need in place! Recall our problem: given `t` weeks has passed in this opportunity, what
+is the probability of a success in `k + t` weeks?
+
+The [conditional survival estimate](https://aacrjournals.org/clincancerres/article/21/7/1530/248476/Conditional-Survival-A-Useful-Concept-to-Provide) 
+given Kaplan-Meier (unconditional) estimates is just the ratio `KM (k + t) / KM (t)`.
+
+""")
+
+
+st.header("Use your own data!")
+
+st.write("""
+        Upload a csv file with three columns (ProductId,SQLDate,WonDate), where the first column is 
+        a integer ID (0, for product_0 for example), the second is a date representing the creation of the opportunity,
+        the third (if present) is the winning date of the opportunity.
+        
+        For an explicit example, _see also the sample raw data above_.
+
+        Once data is uploaded, you will see the same analysis on your data 
+        (NOTE: _no data is stored on our side!_)!
+    """
+)
+uploaded_file = st.file_uploader("Choose a file")
+if uploaded_file is not None:
+     # check if this is a csv -> should be more robust ;-)
+    if not uploaded_file.name.endswith('.csv'):
+        st.write("Please upload a csv file")
+    else:
+        user_survival_data = load_survivals_data(uploaded_file)
+        user_fig = plot_winning_rate(user_survival_data)
+        st.pyplot(user_fig)
+        st.caption("""
+            Analysis on your data, by product line (with confidence intervals).
+            X: Winning probability, Y: Weeks from SQL date.
+        """)
