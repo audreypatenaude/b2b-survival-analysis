@@ -94,7 +94,7 @@ st.caption("""
 st.write("""
     The plot above give us immediately two benefits compared to a traditional, binary conversion analysis:
 
-    * first, by plotting by cohorts (that is, considering for each deal week 0 the SQL opening date), we can immediately compare product lines even in the early days: for example, even if `Prod 1` was a new line with only 10 weeks of data, we would still be able to make some partial judgment and comparison with `Prod 2`;
+    * first, by plotting by cohorts (that is, considering for each deal week 0 the SQL opening date), we can immediately compare product lines even in the early days: for example, even if `Prod 1` was a new line with only 10 weeks of data, we would still be able to make some partial judgment and comparison with `Prod 2` (in particular, `Prod 2` seems to be much better in the early weeks!);
     * second, by using a [statistical estimator from the lifelines package](https://lifelines.readthedocs.io/en/latest/fitters/univariate/KaplanMeierFitter.html) we also get confidence interval around our closing rate. 
 """)
 
@@ -118,7 +118,7 @@ given Kaplan-Meier (unconditional) estimates is just the ratio `KM (k + t) / KM 
 """)
 
 
-k_weeks = st.text_input('Future look-ahead (weeks, integer)', '12')
+k_weeks = st.text_input('Pick a future look-ahead window (weeks, integer)', '8')
 
 def plot_conditional_winning_rate(
     df,
@@ -134,9 +134,10 @@ def plot_conditional_winning_rate(
         cnt_df = df.loc[df['ProductId'] == product]
         T, E = datetimes_to_durations(cnt_df["SQLDate"], cnt_df["WonDate"], freq='W')
         kmf = KaplanMeierFitter().fit(T, E, label='Prod {}'.format(product))
-        all_vals = [1 - _[0] for _ in kmf.survival_function_.values]
+        all_vals = [_[0] for _ in kmf.survival_function_.values]
         max_weeks = len(all_vals)
         y = [all_vals[min(idx + k_weeks, max_weeks - 1)] / all_vals[idx] for idx in range(max_weeks)]
+        y = [1 - _ for _ in y]
         x = range(0, len(y))
         ax.plot(x, y, label='Prod {}'.format(product))
         ax.set_xlabel('Weeks from SQL opening date')
@@ -147,7 +148,7 @@ def plot_conditional_winning_rate(
     return plt
 
 # calculate and plot the lines
-c_fig = plot_winning_rate(sample_survival_data, int(k_weeks))
+c_fig = plot_conditional_winning_rate(sample_survival_data, int(k_weeks))
 st.pyplot(c_fig)
 st.caption("""
     Conditional winning rate (k={}) by product line.
@@ -155,7 +156,17 @@ st.caption("""
 """.format(k_weeks))
 
 st.write("""
-Not bad!
+Not bad! If you run the above with the default `8` as look-ahead window, you see that, given a `10 weeks` opportunity (X-axis), the probability of closing in the next `8` is different for the two products. 
+
+Of course, once you get the intuition, try experiment with different values!
+
+While this is certainly looking like progress, and a (somehow) principled way to look at the challenge, this is _only the beginning_ of a proper analysis: 
+
+* first, no feature of our opportunities is used to provide insights (except partionining by products and age); if we want to also consider, say, sales reps, we need to move to a [full regression model](https://lifelines.readthedocs.io/en/latest/Survival%20Regression.html);
+* second, we have been cheating (a bit) by setting our prediction as a binary problem (win in business=death in survival): in B2B SaaS, outcome is more commonly conceptualized as non-binary, `win`, `loss`, `still open`; also consider that while eventually everybody dies, not everybody buys;
+* third, we have only scratched the surface when using non-parametric estimates for mostly descriptive purposes, but there is a world out of [parametric models](https://lifelines.readthedocs.io/en/latest/Survival%20analysis%20with%20lifelines.html#fitting-to-a-weibull-model) for more advanced use cases.
+
+In other words, while we know this is likely _not_ where you want to end your analysis, we do hope it provides a good intuitive _start_!
 
 """)
 
