@@ -16,7 +16,7 @@ SAMPLE_SURVIVAL_FILE = script_path / 'survival_data.csv'
 
 
 st.write(
-    """Note: this is the web app accompanying our blog post series on survival analysis for B2B pipelines (_fortcoming_).
+    """Note: this is the web app accompanying our blog post series on survival analysis for B2B pipelines (_forthcoming_).
     We suggest that you read the posts and play with the app in tandem.""")
 
 st.header("Part 1: The Problem with Conversion Analysis")
@@ -66,8 +66,11 @@ def plot_winning_rate(
     ax = f.add_subplot(111)
     products = list(df['ProductId'].unique())
     print("Products detected: {}".format(products))
+    # create a df to store the final values
+    values_dfs = []
     # for each product plot the line
     for product in products:
+        p_df = pd.DataFrame()
         cnt_df = df.loc[df['ProductId'] == product]
         T, E = datetimes_to_durations(cnt_df["SQLDate"], cnt_df["WonDate"], freq='W')
         kmf = KaplanMeierFitter().fit(T, E, label='Prod {}'.format(product))
@@ -75,16 +78,24 @@ def plot_winning_rate(
         y_min = [1 - _[0] for _ in kmf.confidence_interval_.values]
         y_max = [1 - _[1] for _ in kmf.confidence_interval_.values]
         x = range(0, len(y))
+        # plot
         ax.plot(x, y, label='Prod {}'.format(product))
         ax.set_xlabel('Weeks from SQL opening date')
         ax.set_ylabel('Probability of winning')
         ax.fill_between(x, y_min, y_max, alpha=.1)
+        # fill df
+        p_df['x'] = x
+        p_df['y'] = y
+        p_df['y_mix'] = y_min
+        p_df['y_max'] = y_max
+        p_df['product'] = [product for _ in range(len(y))]
+        values_dfs.append(p_df)
     # plot the legend
     plt.legend()
 
-    return plt
+    return plt, pd.concat(values_dfs, ignore_index=True)
 
-_fig = plot_winning_rate(sample_survival_data)
+_fig, values_df = plot_winning_rate(sample_survival_data)
 st.pyplot(_fig)
 st.caption("""
     Closing rate by product line as time goes by (with confidence intervals)
@@ -129,8 +140,11 @@ def plot_conditional_winning_rate(
     ax = f.add_subplot(111)
     products = list(df['ProductId'].unique())
     print("Products detected: {}".format(products))
+    # create a df to store the final values
+    values_dfs = []
     # for each product plot the line
     for product in products:
+        p_df = pd.DataFrame()
         cnt_df = df.loc[df['ProductId'] == product]
         T, E = datetimes_to_durations(cnt_df["SQLDate"], cnt_df["WonDate"], freq='W')
         kmf = KaplanMeierFitter().fit(T, E, label='Prod {}'.format(product))
@@ -142,13 +156,19 @@ def plot_conditional_winning_rate(
         ax.plot(x, y, label='Prod {}'.format(product))
         ax.set_xlabel('Weeks from SQL opening date')
         ax.set_ylabel('Probability of winning')
+        # fill df
+        p_df['x'] = x
+        p_df['y'] = y
+        p_df['look_ahead'] = [min(idx + k_weeks, max_weeks - 1) for idx in x]
+        p_df['product'] = [product for _ in range(len(y))]
+        values_dfs.append(p_df)
     # plot the legend
     plt.legend()
 
-    return plt
+    return plt, pd.concat(values_dfs, ignore_index=True)
 
 # calculate and plot the lines
-c_fig = plot_conditional_winning_rate(sample_survival_data, int(k_weeks))
+c_fig, cond_value_df = plot_conditional_winning_rate(sample_survival_data, int(k_weeks))
 st.pyplot(c_fig)
 st.caption("""
     Conditional winning rate (k={}) by product line.
@@ -181,7 +201,7 @@ st.write("""
         For an explicit example, _see also the sample raw data above_.
 
         Once data is uploaded, you will see the same analysis on your data 
-        (NOTE: _no data is stored on our side!_)!
+        (NOTE: _no data is stored on our side!_)! If you want to see the actual numbers, you can use the checkbox to display the table generating the chart!
     """
 )
 uploaded_file = st.file_uploader("Choose a file")
@@ -191,9 +211,21 @@ if uploaded_file is not None:
         st.write("Please upload a csv file")
     else:
         user_survival_data = load_survivals_data(uploaded_file)
-        user_fig = plot_winning_rate(user_survival_data)
+        user_fig, user_values_df = plot_winning_rate(user_survival_data)
         st.pyplot(user_fig)
         st.caption("""
             Analysis on your data, by product line (with confidence intervals).
             Y: Winning probability, X: Weeks from SQL date.
         """)
+        if st.checkbox('Show values'):
+            st.write(user_values_df)
+        # conditional estimates
+        st.write("Now plotting the conditional estimates")
+        user_c_fig, user_cond_value_df = plot_conditional_winning_rate(user_survival_data, int(k_weeks))
+        st.pyplot(user_c_fig)
+        st.caption("""
+            Conditional winning rate (k={}).
+            Y: Conditional winning probability, X: Weeks from SQL date.
+        """.format(k_weeks))
+        if st.checkbox('Show conditional values'):
+            st.write(user_cond_value_df)
