@@ -196,7 +196,7 @@ st.header("Use your own data!")
 st.write("""
         Upload a csv file with three columns (ProductId,SQLDate,WonDate), where the first column is 
         a integer ID (0, for product_0 for example), the second is a date representing the creation of the opportunity,
-        the third (if present) is the winning date of the opportunity.
+        the third is the winning date of the opportunity (if winning date is there, a row would look like `1,3/13/2020,3/22/2020`, otherwise the third column will be empty, e.g. `1,3/13/2020,`).
         
         For an explicit example, _see also the sample raw data above_.
 
