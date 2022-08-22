@@ -184,7 +184,7 @@ While this is certainly looking like progress, and a (somehow) principled way to
 
 * first, no other specific feature of our opportunities is used to provide insights (except partionining by products and age); if we want to also consider, say, sales reps or industry, we need to move to a [full regression model](https://lifelines.readthedocs.io/en/latest/Survival%20Regression.html);
 * second, we have been cheating (a bit) by setting our prediction as a binary problem (win in business=death in survival): in B2B SaaS, outcome is more commonly conceptualized as non-binary, `win`, `loss`, `still open`; also consider that while eventually everybody dies, not everybody buys;
-* third, we have only scratched the surface when using non-parametric estimates for mostly descriptive purposes, but there is a world out of [parametric models](https://lifelines.readthedocs.io/en/latest/Survival%20analysis%20with%20lifelines.html#fitting-to-a-weibull-model) for more advanced use cases.
+* third, we have only scratched the surface when using non-parametric estimates for mostly descriptive purposes, but there is a world of [parametric models](https://lifelines.readthedocs.io/en/latest/Survival%20analysis%20with%20lifelines.html#fitting-to-a-weibull-model) out there for more advanced use cases.
 
 In other words, while we know this is likely _not_ where you want to end your analysis, we do hope it provides a good intuitive _start_!
 
