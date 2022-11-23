@@ -20,7 +20,7 @@ def load_deals_data(file_name):
 
 
 st.write(
-    """Note: this is the web app accompanying our blog post series on survival analysis for B2B pipelines (_fortcoming_).
+    """Note: this is the web app accompanying our [blog post series](https://medium.com/@mllepatenaude/navigating-b2b-pipeline-data-distribution-uncertain-outcomes-bb906f2bfc02) on survival analysis for B2B pipelines.
     We suggest that you read the posts and play with the app in tandem.""")
     
 st.header("Part 1: Distribution and Common Errors")
