@@ -16,7 +16,7 @@ SAMPLE_SURVIVAL_FILE = script_path / 'survival_data.csv'
 
 
 st.write(
-    """Note: this is the web app accompanying our blog post series on survival analysis for B2B pipelines (_forthcoming_).
+    """Note: this is the web app accompanying our [blog post series](https://medium.com/@mllepatenaude/navigating-b2b-pipeline-data-distribution-uncertain-outcomes-bb906f2bfc02) on survival analysis for B2B pipelines.
     We suggest that you read the posts and play with the app in tandem.""")
 
 st.header("Part 1: The Problem with Conversion Analysis")
