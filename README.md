@@ -4,8 +4,8 @@ Code and data playground to better analyze pipeline data for "small-data" B2B sa
 
 ## Overview
 
-This repository contains the code to reproduce the analysis and the arguments of the B2B sales 
-pipeline series (forthcoming). If you are just interested in the interactive app and not so much
+This repository contains the code to reproduce the analysis and the arguments of the [B2B sales 
+pipeline Medium series](https://medium.com/@mllepatenaude/navigating-b2b-pipeline-data-distribution-uncertain-outcomes-bb906f2bfc02). If you are just interested in the interactive app and not so much
 in the code behind it, you can enjoy directly the app [here](https://share.streamlit.io/audreypatenaude/b2b-survival-analysis/src/app/pipeline_app.py).
 
 _Please note this repo is WIP. Come back often for updates_.
